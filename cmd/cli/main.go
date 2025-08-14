@@ -1,9 +1,9 @@
 package main
 
 import (
+	"expense-control-service/internal/commands"
+	"expense-control-service/pkg/console"
 	"fmt"
-	"controle_gastos/pkg/console"
-	"controle_gastos/internal/commands"
 	"os"
 )
 

@@ -3,8 +3,8 @@ package users
 import (
 	"context"
 	"database/sql"
+	"expense-control-service/internal/entity"
 	"fmt"
-	"github.com/eversonbueno/controle_gastos/internal/entity"
 )
 
 type Users interface {
@@ -32,12 +32,12 @@ func (u *users) ListUsers(ctx context.Context) ([]*entity.User, error)  {
 		var user entity.User
 		err := rows.Scan(
 			&user.ID,
-			&user.Email,
-			&user.CPFCNPJ,
 			&user.NomeCompleto,
+			&user.CPFCNPJ,
+			&user.Email,
 			&user.Password,
-			&user.SaldoUsuario,
 			&user.TipoUsuario,
+			&user.SaldoUsuario,
 		)
 		if err != nil {
 			return nil, fmt.Errorf("erro ao scanear usuarios: %v", err)

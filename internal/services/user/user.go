@@ -2,12 +2,12 @@ package user
 
 import (
 	"context"
-	"github.com/eversonbueno/controle_gastos/internal/entity"
-	userRepo "github.com/eversonbueno/controle_gastos/internal/repositories/users"
+	"expense-control-service/internal/entity"
+	userRepo "expense-control-service/internal/repositories/users"
 )
 
 type User interface {
-
+	ListUsers(ctx context.Context) ([]*entity.User, error)
 }
 
 type user struct {
@@ -21,7 +21,7 @@ func New(
 }
 
 func (u *user) ListUsers(ctx context.Context) ([]*entity.User, error)  {
-	users, err := u.ListUsers(ctx)
+	users, err := u.userRepo.ListUsers(ctx)
 	if err != nil {
 		return nil, err
 	}
