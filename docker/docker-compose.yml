@@ -28,10 +28,9 @@ services:
   #     platform: linux/arm64
   #     container_name: container-mysql
   #     environment:
-  #         MYSQL_DATABASE: transport-anomaly
-  #         MYSQL_USER: appuser
-  #         MYSQL_ROOT_PASSWORD: secret
-  #         MYSQL_PASSWORD: secret
+  #         MYSQL_DATABASE: expense-control-service
+  #         MYSQL_USER: everson.bueno
+  #         MYSQL_PASSWORD: Teste@1234
   #     volumes:
   #         - mysql_data:/var/lib/mysql
   #     ports:
