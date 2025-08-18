@@ -32,15 +32,16 @@ func (u *users) ListUsers(ctx context.Context) ([]*entity.User, error)  {
 		var user entity.User
 		err := rows.Scan(
 			&user.ID,
-			&user.NomeCompleto,
-			&user.CPFCNPJ,
-			&user.Email,
-			&user.Password,
-			&user.TipoUsuario,
-			&user.SaldoUsuario,
+			&user.Nome,
+			&user.Sobrenome,
+			&user.Usuario,
+			&user.Senha,
+			&user.Saldo,
+			&user.CreatedAt,
+			&user.UpdatedAt,
 		)
 		if err != nil {
-			return nil, fmt.Errorf("erro ao scanear usuarios: %v", err)
+			return nil, fmt.Errorf("erro ao scanear users: %v", err)
 		}
 
 		users = append(users, &user)

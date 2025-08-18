@@ -1,0 +1,63 @@
+version: "3.4"
+
+services:
+  livereload:
+    build:
+      context: ".."
+      dockerfile: ./docker/golang-dev/Dockerfile
+    container_name: container-golang
+    image: expense-control-service
+    environment:
+      - ENV=development
+    # logging:
+    #     driver: fluentd
+    #     options:
+    #         tag: service-transport-anomaly
+    #         fluentd-address: 0.0.0.0:24224
+    #         fluentd-async: "true"
+    ports:
+      - "9000:9000"
+      - "40000:40000"
+    volumes:
+      - ../:/app
+    networks:
+      - service-go
+
+  # mysqldb:
+  #     image: mysql:5.7
+  #     platform: linux/arm64
+  #     container_name: container-mysql
+  #     environment:
+  #         MYSQL_DATABASE: transport-anomaly
+  #         MYSQL_USER: appuser
+  #         MYSQL_ROOT_PASSWORD: secret
+  #         MYSQL_PASSWORD: secret
+  #     volumes:
+  #         - mysql_data:/var/lib/mysql
+  #     ports:
+  #         - "3306:3306"
+  #     networks:
+  #         - service-go
+
+
+  # fluentd:
+  # build:
+  #     context: ".."
+  #     dockerfile: ./docker/fluentd/Dockerfile
+  # container_name: container-fluentd
+  # image: fluentd-log
+  # restart: always
+  # ports:
+  #     - "24224:24224"
+  # volumes:
+  #     - ../docker/fluentd/fluent.conf:/fluentd/etc/fluent.conf
+  #     - ../docker/fluentd/entrypoint.sh:/bin/entrypoint.sh
+  # networks:
+  #     - service-go
+
+networks:
+  service-go:
+    driver: bridge
+
+volumes:
+  mysql_data:

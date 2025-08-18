@@ -1,11 +1,12 @@
 package entity
 
 type User struct {
-	ID           int     `json:"id"`
-	NomeCompleto string  `json:"nome_completo"`
-	CPFCNPJ      string  `json:"cpf_cnpj"`
-	Email        string  `json:"email"`
-	Password     string  `json:"password"`
-	TipoUsuario  int     `json:"tipo_usuario"`
-	SaldoUsuario float64 `json:"saldo_usuario"`
+	ID        int     `json:"id"`
+	Nome      string  `json:"nome"`
+	Sobrenome string  `json:"sobrenome"`
+	Usuario   string  `json:"usuario"`
+	Senha     string  `json:"senha"`
+	Saldo     float64 `json:"saldo"`
+	CreatedAt string  `json:"created_at"`
+	UpdatedAt string  `json:"updated_at"`
 }
