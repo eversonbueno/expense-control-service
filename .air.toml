@@ -1,0 +1,28 @@
+# Configurações gerais
+app_root = "."
+tmp_dir = "bin"
+
+[build]
+  cmd = "go build -gcflags='all=-N -l' -o bin/app ./cmd/webserver/main.go"
+  bin = "./bin/app"
+  # full_bin = "pkill -9 'dlv|app'; sleep 0.1; dlv exec ./bin/app --listen=:40000 --headless=true --log=true output=debugger,debuglineerr,gdbwire,lldbout,rpc --api-version=2 --accept-multiclient --continue --log --"
+  full_bin = "APP_ENV=dev APP_USER=air ./bin/app"
+
+  include_ext = ["go", "env"]
+  exclude_dir = ["assets","web", "tmp", "vendor", "node_modules"]
+  exclude_file = [".vscode", ".gitignore", ".github", "tmp", "cmd/consumer/listener.go"]
+  exclude_regex = ["_test.go"]
+  exclude_unchanged = true
+  args_bin = ["server"]
+  delay = 1000
+  kill_delay = 10
+
+[log]
+time = true
+
+[misc]
+clean_on_exit = true
+
+[screen]
+clear_on_rebuild = true
+keep_scroll = true

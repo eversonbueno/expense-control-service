@@ -13,7 +13,7 @@ COPY go.mod .
 COPY go.sum .
 
 RUN go install github.com/cosmtrek/air@v1.28.0
-RUN go install github.com/swaggo/swag/cmd/swag@v1.16.2
+#RUN go install github.com/swaggo/swag/cmd/swag@v1.16.2
 # RUN go install github.com/go-delve/delve/cmd/dlv@latest
 RUN go mod download -x
 

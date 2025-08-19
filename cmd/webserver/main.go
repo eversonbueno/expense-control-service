@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"expense-control-service/internal/container"
+	"expense-control-service/internal/http/router"
 )
 
 func main()  {
@@ -10,5 +11,6 @@ func main()  {
 
 	newContainer := container.New(ctx)
 
-	sr := router
+	sr := router.SetupRouter(newContainer)
+	router.RunServer(sr, ":9000")
 }
