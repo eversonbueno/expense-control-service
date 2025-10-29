@@ -1,6 +1,6 @@
 CREATE TABLE lancamentos
 (
-    id                     SERIAL PRIMARY KEY,
+    id                     INT AUTO_INCREMENT PRIMARY KEY,
     usuario_id             INT            NOT NULL,
     conta_id               INT            NOT NULL,
     categoria_id           INT,

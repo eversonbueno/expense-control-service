@@ -1,6 +1,6 @@
 CREATE TABLE categorias
 (
-    id         SERIAL PRIMARY KEY,
+    id         INT AUTO_INCREMENT PRIMARY KEY,
     usuario_id INT          NOT NULL,
     nome       VARCHAR(100) NOT NULL, -- Ex: "Alimentação"
     tipo       VARCHAR(20)  NOT NULL, -- "entrada" ou "saida"

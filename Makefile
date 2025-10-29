@@ -42,6 +42,11 @@ reload-env:
 	@echo "$(GREEN)Carregando as variáveis de ambiente do arquivo .env...$(NC)"
 	source $(ENV_FILE)
 
+# Verificar se as tabelas foram criadas corretamente
+check-db:
+	@echo "$(GREEN)Verificando se as tabelas foram criadas corretamente...$(NC)"
+	./scripts/check-database.sh
+
 # Configurar as variáveis de user e token do Git local: ~/.gitconfig
 # Para usar o dagobah, são usadas no dockerfile
 configure-git:
