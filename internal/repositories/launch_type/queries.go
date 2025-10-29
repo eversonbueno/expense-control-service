@@ -6,6 +6,7 @@ var(
 			id, 
 			descricao
 		FROM tipo_lancamento
+		WHERE ID = ?
 	`
 )
 

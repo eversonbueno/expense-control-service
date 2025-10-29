@@ -32,7 +32,16 @@ func (t launches) ListLaunches(ctx context.Context) ([]*entity.Launches, error) 
 		var launch entity.Launches
 		err := rows.Scan(
 			&launch.ID,
+			&launch.Usuario,
+			&launch.FormaPagamento,
+			&launch.TipoLancamento,
+			&launch.CategoriaLancamento,
+			&launch.Mes,
+			&launch.Ano,
+			&launch.Parcelado,
+			&launch.ParceladoQuantidade,
 			&launch.Descricao,
+			&launch.Valor,
 		)
 		if err != nil {
 			return nil, fmt.Errorf("erro ao scanear lauch types: %v", err)

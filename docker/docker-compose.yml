@@ -1,44 +1,59 @@
-version: "3.4"
+version: "3.8"
 
 services:
-  livereload:
-    build:
-      context: ".."
-      dockerfile: ./docker/golang-dev/Dockerfile
-    container_name: container-golang
-    image: expense-control-service
+  #  Caso queira rodar MySQL via banco local em vez do container, descomente:
+  #  livereload:
+  #    build:
+  #      context: ".."
+  #      dockerfile: ./docker/golang-dev/Dockerfile
+  #    container_name: container-golang
+  #    image: expense-control-service
+  #    environment:
+  #      ENV: development
+  #      DB_HOST: ${DB_HOST}
+  #      DB_PORT: ${DB_PORT}
+  #      DB_USER: ${DB_USERNAME}
+  #      DB_PASS: ${DB_PASSWORD}
+  #      DB_NAME: ${DB_NAME}
+  #    extra_hosts:
+  #      - "host.docker.internal:host-gateway"
+  #    ports:
+  #      - "9000:9000"
+  #      - "40000:40000"
+  #    volumes:
+  #      - ../:/app
+  #    networks:
+  #      - service-go
+
+  mysqldb:
+    image: mysql:8.0
+    container_name: finance_db
     environment:
-      ENV: development
-      DB_HOST: ${DB_HOST}
-      DB_PORT: ${DB_PORT}
-      DB_USER: ${DB_USERNAME}
-      DB_PASS: ${DB_PASSWORD}
-      DB_NAME: ${DB_NAME}
-    extra_hosts:
-      - "host.docker.internal:host-gateway"
+      MYSQL_DATABASE: expense-control-service
+      MYSQL_USER: everson.bueno
+      MYSQL_PASSWORD: Teste@1234
+      MYSQL_ROOT_PASSWORD: root
     ports:
-      - "9000:9000"
-      - "40000:40000"
+      - "3307:3306"
     volumes:
-      - ../:/app
+      - mysql_data:/var/lib/mysql
     networks:
       - service-go
 
-  # Caso queira rodar MySQL via container em vez do banco local, descomente:
-  # mysqldb:
-  #   image: mysql:5.7
-  #   platform: linux/arm64
-  #   container_name: container-mysql
-  #   environment:
-  #     MYSQL_DATABASE: expense-control-service
-  #     MYSQL_USER: everson.bueno
-  #     MYSQL_PASSWORD: Teste@1234
-  #   volumes:
-  #     - mysql_data:/var/lib/mysql
-  #   ports:
-  #     - "3306:3306"
-  #   networks:
-  #     - service-go
+  migrate:
+    image: migrate/migrate
+    command:
+      [
+          "-path", "/migrations",
+          "-database mysql://everson.bueno:Teste%401234@tcp(mysqldb:3307)/expense-control-service?multiStatements=true",
+          "up"
+      ]
+    volumes:
+      - ./internal/database/migrations:/migrations
+    depends_on:
+      - mysqldb
+    networks:
+      - service-go
 
 networks:
   service-go:

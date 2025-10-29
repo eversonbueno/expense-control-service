@@ -20,6 +20,7 @@ func SetupRouter(container *container.Container) *gin.Engine  {
 		expenseControl := v1.Group("/expense-control")
 		{
 			expenseControl.GET("", container.Handler.ListLaunches)
+			expenseControl.POST("/create", container.Handler.CreateLauches)
 		}
 	}
 

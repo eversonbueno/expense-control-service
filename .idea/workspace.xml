@@ -3,10 +3,21 @@
   <component name="ChangeListManager">
     <list default="true" id="4d8f3ae0-d563-4de5-bf3e-1f246cb8a2ea" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmd/webserver/main.go" beforeDir="false" afterPath="$PROJECT_DIR$/cmd/webserver/main.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/bin/app" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/configs/development.env" beforeDir="false" afterPath="$PROJECT_DIR$/configs/development.env" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/docker/docker-compose.yml" beforeDir="false" afterPath="$PROJECT_DIR$/docker/docker-compose.yml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/docker/golang-dev/Dockerfile" beforeDir="false" afterPath="$PROJECT_DIR$/docker/golang-dev/Dockerfile" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/internal/container/container.go" beforeDir="false" afterPath="$PROJECT_DIR$/internal/container/container.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/internal/http/handlers/launches/index.go" beforeDir="false" afterPath="$PROJECT_DIR$/internal/http/handlers/launches/index.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/internal/http/router/router.go" beforeDir="false" afterPath="$PROJECT_DIR$/internal/http/router/router.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/internal/repositories/launch_type/launch_type.go" beforeDir="false" afterPath="$PROJECT_DIR$/internal/repositories/launch_type/launch_type.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/internal/repositories/launch_type/queries.go" beforeDir="false" afterPath="$PROJECT_DIR$/internal/repositories/launch_type/queries.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/internal/repositories/launches/launches.go" beforeDir="false" afterPath="$PROJECT_DIR$/internal/repositories/launches/launches.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/internal/repositories/launches/queries.go" beforeDir="false" afterPath="$PROJECT_DIR$/internal/repositories/launches/queries.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/internal/repositories/payment_methods/payment_methods.go" beforeDir="false" afterPath="$PROJECT_DIR$/internal/repositories/payment_methods/payment_methods.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/internal/repositories/payment_methods/queries.go" beforeDir="false" afterPath="$PROJECT_DIR$/internal/repositories/payment_methods/queries.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/internal/repositories/users/queries.go" beforeDir="false" afterPath="$PROJECT_DIR$/internal/repositories/users/queries.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/internal/repositories/users/users.go" beforeDir="false" afterPath="$PROJECT_DIR$/internal/repositories/users/users.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/internal/services/user/user.go" beforeDir="false" afterPath="$PROJECT_DIR$/internal/services/user/user.go" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />

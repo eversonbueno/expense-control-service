@@ -6,5 +6,6 @@ var(
 			id, 
 			descricao
 		FROM formas_pagamento
+		WHERE id = ?
 	`
 )

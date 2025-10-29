@@ -1,16 +1,11 @@
 package users
 
 var(
-	ListUsers = `
+	ListUserById = `
 		SELECT 
-			id, 
 			nome, 
-			sobrenome, 
-			usuario, 
-			senha,
-			saldo,
-			created_at, 
-			updated_at
-		FROM users
+			sobrenome
+		FROM usuarios
+		WHERE id = ?
 	`
 )

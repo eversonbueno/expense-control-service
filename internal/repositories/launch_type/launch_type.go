@@ -8,7 +8,7 @@ import (
 )
 
 type LauchType interface {
-	ListLauchTypes(ctx context.Context) ([]*entity.LauchType, error)
+	ListLauchTypesById(ctx context.Context, id int) (*entity.LauchType, error)
 }
 
 type lauchType struct {
@@ -19,31 +19,16 @@ func New(db *sql.DB) LauchType  {
 	return &lauchType{db: db}
 }
 
-func (t lauchType) ListLauchTypes(ctx context.Context) ([]*entity.LauchType, error)  {
-	rows, err := t.db.QueryContext(ctx, ListLaunchType)
+func (t lauchType) ListLauchTypesById(ctx context.Context, id int) (*entity.LauchType, error)  {
+	var lauchType entity.LauchType
+	row := t.db.QueryRowContext(ctx, ListLaunchType, id)
+	err := row.Scan(
+		&lauchType.ID,
+		&lauchType.Descricao,
+	)
 	if err != nil {
-		return nil, fmt.Errorf("erro ao executar consulta: %v", err)
+		return nil, fmt.Errorf("erro ao scanear lauch type: %v", err)
 	}
 
-	defer rows.Close()
-
-	var lauchTypes []*entity.LauchType
-	for rows.Next() {
-		var lauchType entity.LauchType
-		err := rows.Scan(
-			&lauchType.ID,
-			&lauchType.Descricao,
-		)
-		if err != nil {
-			return nil, fmt.Errorf("erro ao scanear lauch types: %v", err)
-		}
-
-		lauchTypes = append(lauchTypes, &lauchType)
-	}
-
-	if err = rows.Err(); err != nil {
-		return nil, fmt.Errorf("erro após iterar linhas: %v", err)
-	}
-
-	return lauchTypes, nil
+	return &lauchType, nil
 }

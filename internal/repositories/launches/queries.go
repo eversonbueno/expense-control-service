@@ -13,9 +13,7 @@ var(
 			parcelado, 
 			parcelado_quantidade, 
 			descricao, 
-			valor, 
-			created_at, 
-			updated_at
-		FROM tipo_lancamento
+			valor
+		FROM lancamentos
 	`
 )

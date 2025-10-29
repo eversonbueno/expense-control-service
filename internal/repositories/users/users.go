@@ -8,7 +8,7 @@ import (
 )
 
 type Users interface {
-	ListUsers(ctx context.Context) ([]*entity.User, error)
+	ListUserById(ctx context.Context, id int) (*entity.User, error)
 }
 
 type users struct {
@@ -19,37 +19,17 @@ func New(db *sql.DB) Users  {
 	return &users{db: db}
 }
 
-func (u *users) ListUsers(ctx context.Context) ([]*entity.User, error)  {
-	rows, err := u.db.QueryContext(ctx, ListUsers)
+func (u *users) ListUserById(ctx context.Context, id int) (*entity.User, error)  {
+	var user entity.User
+	row := u.db.QueryRowContext(ctx, ListUserById, id)
+
+	err := row.Scan(
+		&user.Nome,
+		&user.Sobrenome,
+	)
 	if err != nil {
-		return nil, fmt.Errorf("erro ao executar consulta: %v", err)
-	}
-
-	defer rows.Close()
-
-	var users []*entity.User
-	for rows.Next() {
-		var user entity.User
-		err := rows.Scan(
-			&user.ID,
-			&user.Nome,
-			&user.Sobrenome,
-			&user.Usuario,
-			&user.Senha,
-			&user.Saldo,
-			&user.CreatedAt,
-			&user.UpdatedAt,
-		)
-		if err != nil {
 			return nil, fmt.Errorf("erro ao scanear users: %v", err)
 		}
 
-		users = append(users, &user)
-	}
-
-	if err = rows.Err(); err != nil {
-		return nil, fmt.Errorf("erro após iterar linhas: %v", err)
-	}
-
-	return users, nil
+	return &user, nil
 }

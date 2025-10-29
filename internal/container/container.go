@@ -11,7 +11,9 @@ import (
 	launchesRepo "expense-control-service/internal/repositories/launches"
 	paymentMethodsRepo "expense-control-service/internal/repositories/payment_methods"
 	usersRepo "expense-control-service/internal/repositories/users"
+	lauchTypesService "expense-control-service/internal/services/lauches_type"
 	launchesService "expense-control-service/internal/services/launches"
+	paymentMethodsServ "expense-control-service/internal/services/payment_methods"
 	userServ "expense-control-service/internal/services/user"
 	"fmt"
 	"time"
@@ -27,6 +29,8 @@ type Repositories struct {
 type Services struct {
 	User userServ.User
 	Launches launchesService.Launches
+	PaymentMethodsService paymentMethodsServ.PaymentMethods
+	LauchTypesService lauchTypesService.LauchType
 }
 type Handlers struct{
 	launches.Launches
@@ -62,9 +66,11 @@ func newContainer(ctx context.Context) *Container {
 	//Services
 	newUserServ := userServ.New(newUsersRepo)
 	newLaunchesService := launchesService.New(newLaunchesRepo)
+	newPaymentMethodsService := paymentMethodsServ.New(newPaymentMethodsRepo)
+	newLauchTypesService := lauchTypesService.New(newLaunchTypeRepo)
 
 	//Handlers
-	newLaunchesHandler := launchesHandler.New(newLaunchesService)
+	newLaunchesHandler := launchesHandler.New(newLaunchesService, newUserServ, newPaymentMethodsService, newLauchTypesService)
 
 	return &Container{
 		Config: *cfg,
@@ -79,6 +85,8 @@ func newContainer(ctx context.Context) *Container {
 		Service: Services{
 			User: newUserServ,
 			Launches: newLaunchesService,
+			PaymentMethodsService: newPaymentMethodsService,
+			LauchTypesService: newLauchTypesService,
 		},
 		Handler: Handlers{
 			newLaunchesHandler,

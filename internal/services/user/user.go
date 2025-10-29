@@ -7,7 +7,7 @@ import (
 )
 
 type User interface {
-	ListUsers(ctx context.Context) ([]*entity.User, error)
+	ListUserById(ctx context.Context, id int) (*entity.User, error)
 }
 
 type user struct {
@@ -20,8 +20,8 @@ func New(
 	return &user{userRepo: userRepo}
 }
 
-func (u *user) ListUsers(ctx context.Context) ([]*entity.User, error)  {
-	users, err := u.userRepo.ListUsers(ctx)
+func (u *user) ListUserById(ctx context.Context, id int) (*entity.User, error)  {
+	users, err := u.userRepo.ListUserById(ctx, id)
 	if err != nil {
 		return nil, err
 	}
