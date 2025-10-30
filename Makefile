@@ -1,5 +1,5 @@
 # Definição de variáveis
-DOCKER_COMPOSE = docker-compose -f ./docker/docker-compose.yml
+DOCKER_COMPOSE = docker-compose -f ./docker/docker-compose-ubuntu22.yml
 ENV_FILE = configs/development.env
 CONTAINER_NAME = container-golang
 

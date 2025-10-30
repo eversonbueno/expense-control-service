@@ -1,0 +1,53 @@
+version: "3.8"
+
+services:
+  livereload:
+    build:
+      context: ".."
+      dockerfile: ./docker/golang-dev/Dockerfile
+    container_name: container-golang
+    image: expense-control-service
+    environment:
+      ENV: development
+      DB_HOST: host.docker.internal
+      DB_PORT: 3307
+      DB_USERNAME: everson.bueno
+      DB_PASSWORD: Teste@1234
+      DB_NAME: expense-control-service
+    ports:
+      - "9000:9000"
+      - "40000:40000"
+    volumes:
+      - ../:/app
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+
+  mysqldb:
+    image: mysql:5.7  # ✅ Mais compatível com Ubuntu 22.04
+    container_name: finance_db
+    environment:
+      MYSQL_DATABASE: expense-control-service
+      MYSQL_USER: everson.bueno
+      MYSQL_PASSWORD: Teste@1234
+      MYSQL_ROOT_PASSWORD: root
+    ports:
+      - "3307:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+    command: --default-authentication-plugin=mysql_native_password
+
+  migrate:
+    image: migrate/migrate
+    command:
+      [
+          "-path", "/migrations",
+          "-database", "mysql://everson.bueno:Teste%401234@tcp(host.docker.internal:3307)/expense-control-service",
+          "up"
+      ]
+    volumes:
+      - ../internal/database/migrations:/migrations
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+
+volumes:
+  mysql_data:
