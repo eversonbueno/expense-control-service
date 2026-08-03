@@ -11,6 +11,7 @@ import (
 func SetupRouter(container *container.Container) *gin.Engine  {
 	gin.SetMode(gin.ReleaseMode)
 	r := gin.Default()
+	r.Use(middleware.CORSMiddleware(container.Config.CORSAllowedOrigins))
 
 	r.GET("/", handlers.RedirectToAlive)
 	r.GET("/health-check/alive", handlers.Alive)
