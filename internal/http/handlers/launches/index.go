@@ -100,7 +100,7 @@ func (l launches) ListLaunches(c *gin.Context) {
 		}
 
 		resp[i] = ReponseLaunches{
-			Usuario:             user.Nome + " " + user.Sobrenome,
+			Usuario:             user.Nome,
 			FormaPagamento:      paymentMethod.Descricao,
 			TipoLancamento:      lauchType.Descricao,
 			CategoriaLancamento: r.CategoriaLancamento,
