@@ -2,12 +2,14 @@
 -- Autor: dev-dba
 -- Projeto: expense-control-service
 -- Demanda: Spec 001-autenticacao-grupo-familiar — cria grupo_familiar e convites,
---           adiciona email/senha_hash/grupo_familiar_id em usuarios.
+--           adiciona grupo_familiar_id em usuarios.
 --
--- ATENCAO: a tabela `usuarios` real neste banco NAO corresponde as migrations
--- 000001-000006 (nunca aplicadas — nao ha tabela schema_migrations). O schema
--- real e (id, nome, sobrenome, usuario, senha, saldo, created_at, updated_at).
--- Esta migration parte do schema REAL, nao do assumido pelas migrations antigas.
+-- Reconciliacao de schema (2026-08-03): esta migration assumia um schema
+-- legado de `usuarios` (sobrenome, usuario, senha, saldo) nunca confirmado e
+-- incompativel com a cadeia 000001-000005 deste repositorio nem com o que
+-- internal/repositories/users/queries.go realmente consulta. A 000001 foi
+-- corrigida para criar diretamente (id, nome, email, senha_hash, created_at,
+-- updated_at), entao aqui so falta adicionar grupo_familiar_id.
 
 CREATE TABLE grupo_familiar
 (
@@ -21,37 +23,30 @@ CREATE TABLE convites
     codigo            VARCHAR(64)  NOT NULL,
     grupo_familiar_id INT          NOT NULL,
     criado_em         TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    expira_em         TIMESTAMP    NOT NULL,
+    expira_em         DATETIME     NOT NULL,
     utilizado_em      TIMESTAMP    NULL,
     UNIQUE KEY uq_convites_codigo (codigo),
     CONSTRAINT fk_convites_grupo_familiar FOREIGN KEY (grupo_familiar_id) REFERENCES grupo_familiar (id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- Colunas novas em usuarios, nullable por enquanto para permitir o backfill
--- do usuario legado (id=1) antes de travar as constraints NOT NULL/UNIQUE.
+-- Coluna nova em usuarios, nullable por enquanto para permitir o backfill
+-- do usuario legado (id=1) antes de travar a constraint NOT NULL.
 ALTER TABLE usuarios
-    ADD COLUMN email             VARCHAR(100) NULL AFTER usuario,
-    ADD COLUMN senha_hash        VARCHAR(255) NULL AFTER senha,
-    ADD COLUMN grupo_familiar_id INT          NULL AFTER saldo;
+    ADD COLUMN grupo_familiar_id INT NULL;
 
--- Backfill do usuario legado (id=1, Everson Bueno): cria um grupo familiar
--- proprio e popula email/senha_hash com uma senha temporaria (ver relatorio
--- do dev-dba para a senha em texto — trocar apos o primeiro login).
-INSERT INTO grupo_familiar (criado_em) VALUES (CURRENT_TIMESTAMP);
-SET @grupo_legado_id = LAST_INSERT_ID();
+-- Backfill do usuario legado (id=1, Everson Bueno), se existir: cria um
+-- grupo familiar proprio e associa. Em bancos novos, sem esse usuario,
+-- as duas instrucoes abaixo nao afetam nenhuma linha (no-op seguro).
+INSERT INTO grupo_familiar (criado_em)
+SELECT CURRENT_TIMESTAMP FROM usuarios WHERE id = 1;
 
 UPDATE usuarios
-SET email             = 'eversonmbueno@gmail.com',
-    senha_hash         = '$2y$10$NAbTAFfoNQnMYl4zIXoTMe7dHRbYWPHwhjtc8qU14ir0/3V5U6inu',
-    grupo_familiar_id = @grupo_legado_id
+SET grupo_familiar_id = LAST_INSERT_ID()
 WHERE id = 1;
 
--- Trava as constraints agora que todo registro existente tem os valores.
+-- Trava a constraint agora que todo registro existente tem o valor.
 ALTER TABLE usuarios
-    MODIFY COLUMN email             VARCHAR(100) NOT NULL,
-    MODIFY COLUMN senha_hash        VARCHAR(255) NOT NULL,
-    MODIFY COLUMN grupo_familiar_id INT          NOT NULL;
+    MODIFY COLUMN grupo_familiar_id INT NOT NULL;
 
 ALTER TABLE usuarios
-    ADD CONSTRAINT uq_usuarios_email UNIQUE (email),
     ADD CONSTRAINT fk_usuarios_grupo_familiar FOREIGN KEY (grupo_familiar_id) REFERENCES grupo_familiar (id);

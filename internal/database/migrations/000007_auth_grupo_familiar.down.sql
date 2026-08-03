@@ -4,13 +4,10 @@
 -- Rollback da spec 001-autenticacao-grupo-familiar
 
 ALTER TABLE usuarios
-    DROP FOREIGN KEY fk_usuarios_grupo_familiar,
-    DROP INDEX uq_usuarios_email;
+    DROP FOREIGN KEY fk_usuarios_grupo_familiar;
 
 ALTER TABLE usuarios
-    DROP COLUMN grupo_familiar_id,
-    DROP COLUMN senha_hash,
-    DROP COLUMN email;
+    DROP COLUMN grupo_familiar_id;
 
 DROP TABLE IF EXISTS convites;
 DROP TABLE IF EXISTS grupo_familiar;
