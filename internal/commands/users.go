@@ -20,6 +20,6 @@ func UsersListCommand(cmd *cobra.Command, args []string){
 	}
 
 	for _, user := range users {
-		fmt.Printf("ID: %d, Nome: %s\n", user.ID, user.NomeCompleto)
+		fmt.Printf("ID: %d, Nome: %s\n", user.ID, user.Nome)
 	}
 }

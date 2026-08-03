@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"github.com/joho/godotenv"
 	"os"
+	"strings"
 	"time"
 )
 
@@ -15,6 +16,8 @@ type AppConfig struct {
 	AppEnv                         string
 	Mysql                          mysql.MySQLInterface
 	MySqlLatency                   int64
+	JWTSecret                      string
+	CORSAllowedOrigins             []string
 }
 
 var GlobalConfig AppConfig
@@ -29,6 +32,8 @@ func (cfg *AppConfig) Bootstrap(ctx context.Context) {
 
 	cfg.AppName = os.Getenv("APP_NAME")
 	cfg.AppEnv = os.Getenv("APP_ENV")
+	cfg.JWTSecret = os.Getenv("JWT_SECRET")
+	cfg.CORSAllowedOrigins = strings.Split(os.Getenv("CORS_ALLOWED_ORIGINS"), ",")
 
 	cfg.Mysql = mysql.New(
 		os.Getenv("DB_HOST"),
