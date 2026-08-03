@@ -15,6 +15,7 @@ type AppConfig struct {
 	AppEnv                         string
 	Mysql                          mysql.MySQLInterface
 	MySqlLatency                   int64
+	JWTSecret                      string
 }
 
 var GlobalConfig AppConfig
@@ -29,6 +30,7 @@ func (cfg *AppConfig) Bootstrap(ctx context.Context) {
 
 	cfg.AppName = os.Getenv("APP_NAME")
 	cfg.AppEnv = os.Getenv("APP_ENV")
+	cfg.JWTSecret = os.Getenv("JWT_SECRET")
 
 	cfg.Mysql = mysql.New(
 		os.Getenv("DB_HOST"),

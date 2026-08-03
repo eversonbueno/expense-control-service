@@ -1,12 +1,13 @@
 package entity
 
+import "time"
+
 type User struct {
-	ID        int     `json:"id"`
-	Nome      string  `json:"nome"`
-	Sobrenome string  `json:"sobrenome"`
-	Usuario   string  `json:"usuario"`
-	Senha     string  `json:"senha"`
-	Saldo     float64 `json:"saldo"`
-	CreatedAt string  `json:"created_at"`
-	UpdatedAt string  `json:"updated_at"`
+	ID              int       `json:"id"`
+	Nome            string    `json:"nome"`
+	Email           string    `json:"email"`
+	SenhaHash       string    `json:"-"`
+	GrupoFamiliarID int       `json:"grupo_familiar_id"`
+	CreatedAt       time.Time `json:"created_at"`
+	UpdatedAt       time.Time `json:"updated_at"`
 }
