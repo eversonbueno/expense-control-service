@@ -1,121 +1,200 @@
 package launches
 
 import (
-	lauchesTypeService "expense-control-service/internal/services/lauches_type"
-	launchesService "expense-control-service/internal/services/launches"
-	paymentMethodsService "expense-control-service/internal/services/payment_methods"
-	userService "expense-control-service/internal/services/user"
-	"fmt"
-	"github.com/gin-gonic/gin"
+	"errors"
 	"net/http"
 	"strconv"
+	"time"
+
+	"expense-control-service/internal/http/middleware"
+	"expense-control-service/internal/http/requests"
+	launchesService "expense-control-service/internal/services/launches"
+
+	"github.com/gin-gonic/gin"
 )
+
+const dataLayout = "2006-01-02"
 
 type Launches interface {
 	ListLaunches(c *gin.Context)
 	CreateLauches(c *gin.Context)
+	UpdateLaunches(c *gin.Context)
+	DeleteLaunches(c *gin.Context)
 }
 
 type launches struct {
-	launchesService   launchesService.Launches
-	usersService      userService.User
-	paymentService    paymentMethodsService.PaymentMethods
-	laucheTypeService lauchesTypeService.LauchType
+	launchesService launchesService.Launches
 }
 
-func New(
-	launchesService launchesService.Launches,
-	usersService userService.User,
-	paymentService paymentMethodsService.PaymentMethods,
-	laucheTypeService lauchesTypeService.LauchType,
-) Launches {
-	return &launches{
-		launchesService:   launchesService,
-		usersService:      usersService,
-		paymentService:    paymentService,
-		laucheTypeService: laucheTypeService,
+func New(launchesService launchesService.Launches) Launches {
+	return &launches{launchesService: launchesService}
+}
+
+func grupoFamiliarIDFromContext(c *gin.Context) (int, bool) {
+	raw, ok := c.Get(middleware.ContextKeyGrupoFamiliarID)
+	if !ok {
+		return 0, false
 	}
+	id, ok := raw.(int)
+	return id, ok
 }
 
-type ReponseLaunches struct {
-	Usuario             string  `json:"usuario"`
-	FormaPagamento      string  `json:"forma_pagamento"`
-	TipoLancamento      string  `json:"tipo_lancamento"`
-	CategoriaLancamento int     `json:"categoria_lancamento"`
-	Mes                 string     `json:"mes"`
-	Ano                 int     `json:"ano"`
-	Parcelado           int     `json:"parcelado"`
-	ParceladoQuantidade int     `json:"parcelado_quantidade"`
-	Descricao           string  `json:"descricao"`
-	Valor               float64 `json:"valor"`
-}
-
-func (l launches) ListLaunches(c *gin.Context) {
-	mesesMap := map[int]string{
-		1:  "Janeiro",
-		2:  "Fevereiro",
-		3:  "Março",
-		4:  "Abril",
-		5:  "Maio",
-		6:  "Junho",
-		7:  "Julho",
-		8:  "Agosto",
-		9:  "Setembro",
-		10: "Outubro",
-		11: "Novembro",
-		12: "Dezembro",
+func usuarioIDFromContext(c *gin.Context) (int, bool) {
+	raw, ok := c.Get(middleware.ContextKeyUsuarioID)
+	if !ok {
+		return 0, false
 	}
+	id, ok := raw.(int)
+	return id, ok
+}
 
-	lauches, err := l.launchesService.ListLaunches(c.Request.Context())
+func parseOptionalIntQuery(c *gin.Context, key string) (*int, error) {
+	raw := c.Query(key)
+	if raw == "" {
+		return nil, nil
+	}
+	v, err := strconv.Atoi(raw)
 	if err != nil {
-		fmt.Println(err)
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "falha ao listar lançamentos"})
+		return nil, err
+	}
+	return &v, nil
+}
+
+// ListLaunches implementa RN-12 (isolamento por grupo familiar) e RN-13 (filtro opcional por mês/ano).
+func (l *launches) ListLaunches(c *gin.Context) {
+	grupoID, ok := grupoFamiliarIDFromContext(c)
+	if !ok {
+		c.JSON(http.StatusUnauthorized, gin.H{"data": nil, "error": "não autenticado"})
 		return
 	}
 
-	resp := make([]ReponseLaunches, len(lauches))
-	for i, r := range lauches {
-		user, err := l.usersService.ListUserById(c.Request.Context(), int(r.ID))
-		if err != nil {
-			fmt.Println(err)
-			c.JSON(http.StatusBadRequest, gin.H{"error": "falha ao buscar dados do usuário"})
-			return
-		}
-
-		paymentMethod, err := l.paymentService.ListPaymentMethodsById(c.Request.Context(), int(r.ID))
-		if err != nil {
-			c.JSON(http.StatusBadRequest, gin.H{"error": "falha ao buscar dados do método de pagamento"})
-			return
-		}
-
-		lauchType, err := l.laucheTypeService.ListLauchTypesById(c.Request.Context(), int(r.ID))
-		if err != nil {
-			c.JSON(http.StatusBadRequest, gin.H{"error": "falha ao buscar dados do tipo de lançamento"})
-			return
-		}
-
-		nomeMes, ok := mesesMap[r.Mes];
-		if !ok {
-
-		}
-
-		resp[i] = ReponseLaunches{
-			Usuario:             user.Nome,
-			FormaPagamento:      paymentMethod.Descricao,
-			TipoLancamento:      lauchType.Descricao,
-			CategoriaLancamento: r.CategoriaLancamento,
-			Mes:                 strconv.Itoa(r.Mes) + "-" + nomeMes,
-			Ano:                 r.Ano,
-			Parcelado:           r.Parcelado,
-			ParceladoQuantidade: r.ParceladoQuantidade,
-			Descricao:           r.Descricao,
-			Valor:               r.Valor,
-		}
+	mes, err := parseOptionalIntQuery(c, "mes")
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"data": nil, "error": "mes inválido"})
+		return
+	}
+	ano, err := parseOptionalIntQuery(c, "ano")
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"data": nil, "error": "ano inválido"})
+		return
 	}
 
-	c.JSON(http.StatusOK, resp)
+	lancamentos, err := l.launchesService.ListLaunches(c.Request.Context(), grupoID, mes, ano)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"data": nil, "error": "erro ao listar lançamentos"})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"data": lancamentos, "error": nil})
 }
 
-func (l launches) CreateLauches(c *gin.Context) {
+func (l *launches) CreateLauches(c *gin.Context) {
+	grupoID, ok := grupoFamiliarIDFromContext(c)
+	if !ok {
+		c.JSON(http.StatusUnauthorized, gin.H{"data": nil, "error": "não autenticado"})
+		return
+	}
+	usuarioLogadoID, ok := usuarioIDFromContext(c)
+	if !ok {
+		c.JSON(http.StatusUnauthorized, gin.H{"data": nil, "error": "não autenticado"})
+		return
+	}
 
+	var req requests.CriarLancamentoRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"data": nil, "error": "requisição inválida"})
+		return
+	}
+
+	data, err := time.Parse(dataLayout, req.Data)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"data": nil, "error": "data inválida, use o formato AAAA-MM-DD"})
+		return
+	}
+
+	lancamento, err := l.launchesService.Criar(
+		c.Request.Context(), grupoID, usuarioLogadoID, req.ContaID, req.Tipo,
+		req.CategoriaID, req.FormaPagamentoID, req.Descricao, req.Valor, data,
+	)
+	if err != nil {
+		mapErro(c, err)
+		return
+	}
+
+	c.JSON(http.StatusCreated, gin.H{"data": lancamento, "error": nil})
+}
+
+func (l *launches) UpdateLaunches(c *gin.Context) {
+	grupoID, ok := grupoFamiliarIDFromContext(c)
+	if !ok {
+		c.JSON(http.StatusUnauthorized, gin.H{"data": nil, "error": "não autenticado"})
+		return
+	}
+
+	id, err := strconv.Atoi(c.Param("id"))
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"data": nil, "error": "id inválido"})
+		return
+	}
+
+	var req requests.AtualizarLancamentoRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"data": nil, "error": "requisição inválida"})
+		return
+	}
+
+	data, err := time.Parse(dataLayout, req.Data)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"data": nil, "error": "data inválida, use o formato AAAA-MM-DD"})
+		return
+	}
+
+	lancamento, err := l.launchesService.Atualizar(
+		c.Request.Context(), grupoID, id, req.ContaID, req.Tipo,
+		req.CategoriaID, req.FormaPagamentoID, req.Descricao, req.Valor, data,
+	)
+	if err != nil {
+		mapErro(c, err)
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"data": lancamento, "error": nil})
+}
+
+func (l *launches) DeleteLaunches(c *gin.Context) {
+	grupoID, ok := grupoFamiliarIDFromContext(c)
+	if !ok {
+		c.JSON(http.StatusUnauthorized, gin.H{"data": nil, "error": "não autenticado"})
+		return
+	}
+
+	id, err := strconv.Atoi(c.Param("id"))
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"data": nil, "error": "id inválido"})
+		return
+	}
+
+	if err := l.launchesService.Excluir(c.Request.Context(), grupoID, id); err != nil {
+		mapErro(c, err)
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"data": "lançamento excluído", "error": nil})
+}
+
+func mapErro(c *gin.Context, err error) {
+	switch {
+	case errors.Is(err, launchesService.ErrTipoInvalido),
+		errors.Is(err, launchesService.ErrValorInvalido),
+		errors.Is(err, launchesService.ErrContaInvalida),
+		errors.Is(err, launchesService.ErrCategoriaInvalida),
+		errors.Is(err, launchesService.ErrFormaPagamentoInvalida):
+		c.JSON(http.StatusBadRequest, gin.H{"data": nil, "error": err.Error()})
+	case errors.Is(err, launchesService.ErrLancamentoNaoEncontrado):
+		c.JSON(http.StatusNotFound, gin.H{"data": nil, "error": err.Error()})
+	case errors.Is(err, launchesService.ErrAcessoNegado):
+		c.JSON(http.StatusForbidden, gin.H{"data": nil, "error": err.Error()})
+	default:
+		c.JSON(http.StatusInternalServerError, gin.H{"data": nil, "error": "erro ao processar lançamento"})
+	}
 }

@@ -1,10 +1,16 @@
 package payment_methods
 
-var(
+var (
 	ListPaymentMethods = `
-		SELECT 
-			id, 
+		SELECT
+			id,
 			descricao
+		FROM formas_pagamento
+		WHERE id = ?
+	`
+
+	CountPaymentMethodById = `
+		SELECT COUNT(*)
 		FROM formas_pagamento
 		WHERE id = ?
 	`
