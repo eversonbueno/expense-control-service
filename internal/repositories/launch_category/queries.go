@@ -4,7 +4,8 @@ var (
 	ListLaunchCategory = `
 		SELECT
 			id,
-			descricao
+			descricao,
+			idfk_tipo_lancamento
 		FROM categoria_lancamento
 	`
 

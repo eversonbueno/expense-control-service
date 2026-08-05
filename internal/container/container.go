@@ -6,8 +6,10 @@ import (
 	"expense-control-service/configs"
 	authHandler "expense-control-service/internal/http/handlers/auth"
 	contasHandler "expense-control-service/internal/http/handlers/contas"
+	launchCategoryHandler "expense-control-service/internal/http/handlers/launch_category"
 	"expense-control-service/internal/http/handlers/launches"
 	launchesHandler "expense-control-service/internal/http/handlers/launches"
+	paymentMethodsHandler "expense-control-service/internal/http/handlers/payment_methods"
 	contasRepo "expense-control-service/internal/repositories/contas"
 	conviteRepo "expense-control-service/internal/repositories/convite"
 	grupoFamiliarRepo "expense-control-service/internal/repositories/grupo_familiar"
@@ -19,6 +21,7 @@ import (
 	authService "expense-control-service/internal/services/auth"
 	contasService "expense-control-service/internal/services/contas"
 	lauchTypesService "expense-control-service/internal/services/lauches_type"
+	launchCategoryService "expense-control-service/internal/services/launch_category"
 	launchesService "expense-control-service/internal/services/launches"
 	paymentMethodsServ "expense-control-service/internal/services/payment_methods"
 	userServ "expense-control-service/internal/services/user"
@@ -37,17 +40,20 @@ type Repositories struct {
 	Contas         contasRepo.Contas
 }
 type Services struct {
-	User userServ.User
-	Launches launchesService.Launches
+	User                  userServ.User
+	Launches              launchesService.Launches
 	PaymentMethodsService paymentMethodsServ.PaymentMethods
-	LauchTypesService lauchTypesService.LauchType
-	Auth authService.Auth
-	Contas contasService.Contas
+	LauchTypesService     lauchTypesService.LauchType
+	Auth                  authService.Auth
+	Contas                contasService.Contas
+	LaunchCategory        launchCategoryService.LaunchCategory
 }
-type Handlers struct{
+type Handlers struct {
 	launches.Launches
-	Auth authHandler.Auth
-	Contas contasHandler.Contas
+	Auth            authHandler.Auth
+	Contas          contasHandler.Contas
+	Categorias      launchCategoryHandler.LaunchCategory
+	FormasPagamento paymentMethodsHandler.PaymentMethods
 }
 type Container struct {
 	Config     configs.AppConfig
@@ -87,11 +93,14 @@ func newContainer(ctx context.Context) *Container {
 	newLauchTypesService := lauchTypesService.New(newLaunchTypeRepo)
 	newAuthService := authService.New(newUsersRepo, newGrupoFamiliarRepo, newConviteRepo, cfg.JWTSecret)
 	newContasService := contasService.New(newContasRepo)
+	newLaunchCategoryService := launchCategoryService.New(newLaunchCategoryRepo)
 
 	//Handlers
 	newLaunchesHandler := launchesHandler.New(newLaunchesService)
 	newAuthHandler := authHandler.New(newAuthService)
 	newContasHandler := contasHandler.New(newContasService)
+	newLaunchCategoryHandler := launchCategoryHandler.New(newLaunchCategoryService)
+	newPaymentMethodsHandler := paymentMethodsHandler.New(newPaymentMethodsService)
 
 	return &Container{
 		Config: *cfg,
@@ -107,17 +116,20 @@ func newContainer(ctx context.Context) *Container {
 			Contas:         newContasRepo,
 		},
 		Service: Services{
-			User: newUserServ,
-			Launches: newLaunchesService,
+			User:                  newUserServ,
+			Launches:              newLaunchesService,
 			PaymentMethodsService: newPaymentMethodsService,
-			LauchTypesService: newLauchTypesService,
-			Auth: newAuthService,
-			Contas: newContasService,
+			LauchTypesService:     newLauchTypesService,
+			Auth:                  newAuthService,
+			Contas:                newContasService,
+			LaunchCategory:        newLaunchCategoryService,
 		},
 		Handler: Handlers{
 			newLaunchesHandler,
 			newAuthHandler,
 			newContasHandler,
+			newLaunchCategoryHandler,
+			newPaymentMethodsHandler,
 		},
 	}
 

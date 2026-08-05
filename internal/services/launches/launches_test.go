@@ -69,6 +69,9 @@ type mockPaymentMethodsRepo struct {
 func (m *mockPaymentMethodsRepo) ListPaymentMethodById(ctx context.Context, id int) (*entity.PaymentMethods, error) {
 	return nil, nil
 }
+func (m *mockPaymentMethodsRepo) ListAll(ctx context.Context) ([]*entity.PaymentMethods, error) {
+	return nil, nil
+}
 func (m *mockPaymentMethodsRepo) Exists(ctx context.Context, id int) (bool, error) {
 	return m.existsFn(ctx, id)
 }

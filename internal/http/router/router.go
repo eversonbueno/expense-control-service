@@ -8,7 +8,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func SetupRouter(container *container.Container) *gin.Engine  {
+func SetupRouter(container *container.Container) *gin.Engine {
 	gin.SetMode(gin.ReleaseMode)
 	r := gin.Default()
 	r.Use(middleware.CORSMiddleware(container.Config.CORSAllowedOrigins))
@@ -42,6 +42,9 @@ func SetupRouter(container *container.Container) *gin.Engine  {
 			contas.PATCH("/:id/desativar", container.Handler.Contas.Desativar)
 			contas.PATCH("/:id/reativar", container.Handler.Contas.Reativar)
 		}
+
+		v1.GET("/categorias", container.Handler.Categorias.ListarCategorias)
+		v1.GET("/formas-pagamento", container.Handler.FormasPagamento.ListarFormasPagamento)
 	}
 
 	return r

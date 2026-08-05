@@ -14,4 +14,11 @@ var (
 		FROM formas_pagamento
 		WHERE id = ?
 	`
+
+	ListAllPaymentMethods = `
+		SELECT
+			id,
+			descricao
+		FROM formas_pagamento
+	`
 )

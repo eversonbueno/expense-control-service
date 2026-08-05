@@ -35,6 +35,7 @@ func (t launchCategory) ListLaunchCategorys(ctx context.Context) ([]*entity.Laun
 		err := rows.Scan(
 			&lauchCategory.ID,
 			&lauchCategory.Descricao,
+			&lauchCategory.TipoLancamentoID,
 		)
 		if err != nil {
 			return nil, fmt.Errorf("erro ao scanear lauch types: %v", err)
