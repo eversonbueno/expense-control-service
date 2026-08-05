@@ -26,10 +26,21 @@ func SetupRouter(container *container.Container) *gin.Engine  {
 
 	v1 := r.Group("/api/v1", middleware.AuthMiddleware(container.Config.JWTSecret))
 	{
-		expenseControl := v1.Group("/expense-control")
+		lancamentos := v1.Group("/lancamentos")
 		{
-			expenseControl.GET("", container.Handler.ListLaunches)
-			expenseControl.POST("/create", container.Handler.CreateLauches)
+			lancamentos.GET("", container.Handler.ListLaunches)
+			lancamentos.POST("", container.Handler.CreateLauches)
+			lancamentos.PUT("/:id", container.Handler.UpdateLaunches)
+			lancamentos.DELETE("/:id", container.Handler.DeleteLaunches)
+		}
+
+		contas := v1.Group("/contas")
+		{
+			contas.POST("", container.Handler.Contas.Criar)
+			contas.GET("", container.Handler.Contas.Listar)
+			contas.PUT("/:id", container.Handler.Contas.Atualizar)
+			contas.PATCH("/:id/desativar", container.Handler.Contas.Desativar)
+			contas.PATCH("/:id/reativar", container.Handler.Contas.Reativar)
 		}
 	}
 

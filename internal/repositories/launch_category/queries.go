@@ -1,10 +1,19 @@
 package launch_category
 
-var(
+var (
 	ListLaunchCategory = `
-		SELECT 
-			id, 
+		SELECT
+			id,
 			descricao
 		FROM categoria_lancamento
+	`
+
+	FindLaunchCategoryById = `
+		SELECT
+			id,
+			descricao,
+			idfk_tipo_lancamento
+		FROM categoria_lancamento
+		WHERE id = ?
 	`
 )
